@@ -1,0 +1,2 @@
+- Run on colab
+- Tạo bộ nhãn riêng với labelImg
