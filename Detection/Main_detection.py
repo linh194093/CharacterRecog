@@ -10,13 +10,11 @@ def take_from_image():
 
     net = cv2.dnn.readNet("./Detection/yolov3_training_last.weights", "./Detection/yolov3_testing.cfg")
 
-    # print('vllll')
-    # Name custom object
+    # print('Start to custom')
+
     classes = ["character"]
 
-    # Images path
-    # images_path = glob.glob("\*")
-    # print(images_path)
+
     images_path = ['C:\\Users\\Admin\\Desktop\\Project\\Detection\\1.jpg']
 
 
@@ -25,54 +23,57 @@ def take_from_image():
     output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
     colors = np.random.uniform(0, 255, size=(len(classes), 3))
 
-    # Insert here the path of your images
-    # random.shuffle(images_path)
-    # loop through all the images
+
+
     for img_path in images_path:
-        # Loading image
         
         img = cv2.imread(img_path)
         img = cv2.resize(img, None, fx=0.4, fy=0.4)
         print(img)
         height, width, channels = img.shape
 
-        # Detecting objects
+
+
         blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
 
         net.setInput(blob)
         outs = net.forward(output_layers)
 
-        # Showing informations on the screen
+        #Lưu thông tin
         class_ids = []
         confidences = []
         boxes = []
+
+
         for out in outs:
             for detection in out:
                 scores = detection[5:]
                 class_id = np.argmax(scores)
                 confidence = scores[class_id]
+
                 if confidence > 0.3:
-                    # Object detected
+
                     print(class_id)
                     center_x = int(detection[0] * width)
                     center_y = int(detection[1] * height)
                     w = int(detection[2] * width)
                     h = int(detection[3] * height)
 
-                    # Rectangle coordinates
+
                     x = int(center_x - w / 2)
                     y = int(center_y - h / 2)
 
                     boxes.append([x, y, w, h])
                     confidences.append(float(confidence))
                     class_ids.append(class_id)
+
         gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
         thresh = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV,51,9)
         
+
+
         indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
-        # print('vlxxxx')
-        print(indexes)
-        font = cv2.FONT_HERSHEY_PLAIN
+        # print(indexes)
         for i in range(len(boxes)):
             if i in indexes:
                 x, y, w, h = boxes[i]
@@ -113,37 +114,36 @@ def take_from_array(images_array, show_detail = 0):
     colors = np.random.uniform(0, 255, size=(len(classes), 3))
 
 
-    # loop through all the images
+
     for img_path in images_array:
-        # Loading image
         img = img_path
         img = cv2.resize(img, None, fx=0.4, fy=0.4)
         height, width, channels = img.shape
 
-        # Detecting objects
+
         blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
 
         net.setInput(blob)
         outs = net.forward(output_layers)
 
-        # Showing informations on the screen
+        #Lưu thông tin để thống kê
         class_ids = []
         confidences = []
         boxes = []
+
         for out in outs:
             for detection in out:
                 scores = detection[5:]
                 class_id = np.argmax(scores)
                 confidence = scores[class_id]
                 if confidence > 0.3:
-                    # Object detected
+
                     print(class_id)
                     center_x = int(detection[0] * width)
                     center_y = int(detection[1] * height)
                     w = int(detection[2] * width)
                     h = int(detection[3] * height)
 
-                    # Rectangle coordinates
                     x = int(center_x - w / 2)
                     y = int(center_y - h / 2)
 
@@ -159,17 +159,16 @@ def take_from_array(images_array, show_detail = 0):
         for i in range(len(boxes)):
             if i in indexes:
                 x, y, w, h = boxes[i]
+                #Duyệt x từ trái qua phải 
                 ListX.append(x)
+
+
+                #Thêm padding
                 x -= int(x/40)
                 y -= int(y/9)
                 w += 2*int(x/40)
                 h += 2*int(y/8)
-                # if(y < 0):
-                #     y = 0
-                # if(x < 0):
-                #     x = 0
-                # w += 20
-                # h += 20
+
                 print(x, y, w, h)
                 label = str(classes[class_ids[i]])
                 color = colors[class_ids[i]]
@@ -182,9 +181,7 @@ def take_from_array(images_array, show_detail = 0):
                     img_pad = np.zeros([28, 28])    
                     img_pad[5:5+a, 5:23] = crop_image
                     crop_image = img_pad
-                    # if show_detail == 1:
-                        # cv2.imshow("pad", img_pad)
-                        # cv2.waitKey(0)
+
                     Result.append(crop_image)
                 if h >= w:
                     a = int(18*w/h)
@@ -192,8 +189,7 @@ def take_from_array(images_array, show_detail = 0):
                     img_pad = np.zeros([28, 28])    
                     img_pad[5:23, 5:5+a] = crop_image
                     crop_image = img_pad
-                    # cv2.imshow("pad", img_pad)
-                    # cv2.waitKey(0)
+
                     Result.append(crop_image)
         if show_detail == 1:
             cv2.imshow("Image", img)
